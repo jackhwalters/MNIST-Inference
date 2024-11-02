@@ -1,0 +1,5 @@
+data_for_inference/
+mnist_images/
+*.pt
+mnist_images.csv
+mnist_images.zip
