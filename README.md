@@ -16,7 +16,7 @@ You're free to change `setup-data.sh` and `train.py`, namely the data split and 
 Sample usage of inference script:
 
 ```
-$ python inference.py --model mnist_cnn.pt --target data_for_inference --batch-size 16 --image-types .png .jpg --output-file infererence_results.csv
+$ python inference.py --model mnist_cnn.pt --target data_for_inference --batch-size 16 --image-types .png .jpg --output-file inference_results.csv
 
 Inferencing batch 1 of 2
 Inferencing batch 2 of 2
