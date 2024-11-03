@@ -11,7 +11,7 @@ from torchvision.io import read_image
 from torch.utils.data import Dataset
 
 
-class CustomImageDataset(Dataset):
+class CustomImageTrainDataset(Dataset):
     def __init__(
         self, annotations_file, img_dir, transform=None, target_transform=None
     ):
@@ -206,16 +206,17 @@ def main():
 
     transform = transforms.Compose(
         [
+            transforms.Resize((28, 28)),
             transforms.ToPILImage(),
             transforms.RandomInvert(),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
         ]
     )
-    train_dataset = CustomImageDataset(
+    train_dataset = CustomImageTrainDataset(
         annotations_file="mnist_images.csv", img_dir="mnist_images", transform=transform
     )
-    test_dataset = CustomImageDataset(
+    test_dataset = CustomImageTrainDataset(
         annotations_file="mnist_images.csv", img_dir="mnist_images", transform=transform
     )
 

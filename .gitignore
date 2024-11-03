@@ -1,5 +1,7 @@
+__pycache__/
 data_for_inference/
 mnist_images/
+results/
 *.pt
 mnist_images.csv
 mnist_images.zip
