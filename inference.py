@@ -76,11 +76,14 @@ def main():
         help="the file in which inference results are stored",
     )
 
-    
     args = parser.parse_args()
-    loader_kwargs = {"batch_size": args.batch_size}
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     use_mps = not args.no_mps and torch.backends.mps.is_available()
+    loader_kwargs = {
+        "batch_size": args.batch_size,
+        "num_workers": os.cpu_count(),
+        "pin_memory": use_cuda or use_mps,
+    }
     
     if use_cuda:
         loader_kwargs.update({"num_workers": 1, "pin_memory": True, "shuffle": True})
