@@ -12,3 +12,20 @@ digit,count
 ```
 
 You're free to change `setup-data.sh` and `train.py`, namely the data split and training setup, just document your reasoning. For convenience we include a `reset.sh` that you shouldn't need to change.
+
+Sample usage of inference script:
+
+```
+$ python inference.py --model mnist_cnn.pt --target data_for_inference --batch-size 16 --image-types .png .jpg --output-file infererence_results.csv
+
+Inferencing batch 1 of 2
+Inferencing batch 2 of 2
+ digit  count
+     0     11
+     8      5
+     6      4
+     5      3
+     2      3
+     3      3
+     4      1
+```
