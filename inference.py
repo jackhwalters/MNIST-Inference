@@ -14,6 +14,9 @@ class CustomImageInferenceDataset(Dataset):
         self.img_root_dir = img_root_dir
         self.transform = transform
         self.image_names = []
+        
+        # Walk through inference directory and its subdirectories, appending files to the
+        # inference list if of certain file type(s)
         for dir, _, files in os.walk(self.img_root_dir):
             for file in files:
                 if file.lower().endswith(image_types):
@@ -79,6 +82,8 @@ def main():
     args = parser.parse_args()
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     use_mps = not args.no_mps and torch.backends.mps.is_available()
+    
+    # Device-dependent data loader optimisations
     loader_kwargs = {
         "batch_size": args.batch_size,
         "num_workers": os.cpu_count(),
@@ -99,7 +104,7 @@ def main():
         img_root_dir=args.target,
         transform=transforms.Compose(
             [
-                transforms.Resize((28, 28)),
+                transforms.Resize((28, 28)), # Resize variable size input images
                 transforms.ToPILImage(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
@@ -110,30 +115,32 @@ def main():
 
     inference_loader = torch.utils.data.DataLoader(inference_dataset, **loader_kwargs)
 
+    # Load model
     model = Net().to(device)
     model.load_state_dict(torch.load(args.model, weights_only=True))
     model.eval()
     
-    predictions = torch.tensor([], dtype=torch.int64).to(device)
+    if not os.path.exists('results'):
+        os.makedirs('results')
+        
+    # Initialise counter object we will append to throughout inference batches
+    pred_counter = Counter()
     for batch_idx, data in enumerate(inference_loader):
         print("Inferencing batch {} of {}".format(batch_idx + 1, len(inference_loader)))
         data = data.to(device)
         output = model(data)
-        predictions = torch.cat(
-            (
-                predictions,
-                output.argmax(
-                    dim=1, keepdim=True
-                )
-            )
-        )
-    pred_counter = Counter(predictions.squeeze().tolist())
-    sorted_counts = sorted(pred_counter.items(), key=lambda item: item[1], reverse=True)
-    df = pd.DataFrame(sorted_counts, columns=['digit', 'count'])
-    if not os.path.exists('results'):
-        os.makedirs('results')
-    df.to_csv(os.path.join('results', args.output_file), index=False)
-    print(df.to_string(index=False))
+
+        # Extract predictions and add to prediction counter
+        batch_predictions = output.argmax(dim=1, keepdim=True).squeeze().tolist()
+        pred_counter.update(batch_predictions)
+
+        # Save intermediate results
+        df = pd.DataFrame(pred_counter.items(), columns=['digit', 'count'])
+        df.to_csv(os.path.join('results', args.output_file), index=False)
+
+    # Sort and print final results
+    df = pd.read_csv(os.path.join('results', args.output_file))
+    print(df.sort_values(by='count', ascending=False).to_string(index=False))
 
 
 if __name__ == "__main__":
