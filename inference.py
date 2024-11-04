@@ -70,7 +70,7 @@ def main():
     parser.add_argument(
         "--image-types",
         nargs="+",
-        default=[".png"],
+        default=[".png", ".jpg"],
         help="image types on which the model will perform inference",
     )
     parser.add_argument(
