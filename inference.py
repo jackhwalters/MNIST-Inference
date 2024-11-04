@@ -136,11 +136,12 @@ def main():
 
         # Save intermediate results
         df = pd.DataFrame(pred_counter.items(), columns=['digit', 'count'])
+        df = df.sort_values(by='count', ascending=False)
         df.to_csv(os.path.join('results', args.output_file), index=False)
 
     # Sort and print final results
     df = pd.read_csv(os.path.join('results', args.output_file))
-    print(df.sort_values(by='count', ascending=False).to_string(index=False))
+    print(df.to_string(index=False))
 
 
 if __name__ == "__main__":
